@@ -4,12 +4,11 @@ author: "Xinyao Wu"
 date: "2018/11/4"
 output: github_document
 ---
-
+#### library
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
 library(tidyverse)
 library(purrr)
-set.seed(1)
 ```
 
 ##Problem 1
@@ -55,6 +54,7 @@ ggplot(aes(x = week, y = value, group= subject_Id,color = subject_Id))+
 
 
 ##Problem2
+*read and clean data
 ```{r Q1}
 wp_df = read.csv("https://raw.githubusercontent.com/washingtonpost/data-homicides/master/homicide-data.csv") %>% 
 janitor::clean_names() %>% 
@@ -79,7 +79,7 @@ homicide
 ####comments
 
 
-```{r Q2}
+```{r  collapse = TRUE}
  balti = homicide  %>% 
 #select the city of Baltimore,MD
   filter(city_state == "Baltimore,MD") 
@@ -95,16 +95,35 @@ pull(balti,conf.low)
 #high limit
 pull(balti,conf.high)
 ```
-```{r}
 
+```{r warning=FALSE}
+prop_df = homicide %>% 
+  mutate(
+    test = map2(.x = unsolved_homicides, .y = total_homicides, prop.test),
+    test = map(test,broom::tidy)
+         )  %>% 
+  unnest() %>% 
+  select(city_state, estimate, conf.low, conf.high) 
+head(prop_df)
+```
+###comments
+
+```{r plot}
+prop_df %>% 
+  ggplot(aes(x = reorder(city_state,estimate), y =estimate))+
+  geom_point()+
+  geom_errorbar(aes(ymin = conf.low, ymax = conf.high))+
+  theme(
+    axis.text.x = element_text(angle = 90,hjust = 1,size = 6.5)
+  )+
+  labs(
+    title = "The proportions of unsolved homicides in each city",
+    y = "Proportion of unsolved homicides",
+    x = "City"
+  )
 ```
 
-
-Now run prop.test for each of the cities in your dataset, and extract both the proportion of unsolved homicides and the confidence interval for each. Do this within a “tidy” pipeline, making use of  purrr::map, purrr::map2, list columns and unnest as necessary to create a tidy dataframe with estimated proportions and CIs for each city.
-
-
-Create a plot that shows the estimates and CIs for each city – check out geom_errorbar for a way to add error bars based on the upper and lower limits. Organize cities according to the proportion of unsolved homicides.
-
+####Comments
 
 
 
