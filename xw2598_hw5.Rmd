@@ -12,7 +12,7 @@ library(purrr)
 set.seed(1)
 ```
 
-###Problem 1
+##Problem 1
 ```{r tidy_data}
 #a dataframe containing all file names
 file_ls =tibble(
@@ -49,6 +49,50 @@ ggplot(aes(x = week, y = value, group= subject_Id,color = subject_Id))+
   facet_grid(~group)
 
 ```
+#Comments:
+
+
+
+
+##Problem2
+```{r Q1}
+wp_df = read.csv("https://raw.githubusercontent.com/washingtonpost/data-homicides/master/homicide-data.csv") %>% 
+janitor::clean_names() %>% 
+  mutate(city_state = str_c(city,state,sep = ","))
+```
+####Describe the raw data.
+
+
+```{r}
+#calculated the total number of homicides and unsolved homicides
+wp_df %>% 
+  group_by(city_state) %>% 
+  mutate(
+    unsolved = ifelse(disposition == "Closed by arrest",0,1)
+      ) %>% 
+  summarise(
+    total_homicides = n(),
+    unsolved_homicides = sum(unsolved)
+  ) 
+```
+####comments
+
+
+```{r Q2}
+
+
+```
+
+
+
+
+
+For the city of Baltimore, MD, use the prop.test function to estimate the proportion of homicides that are unsolved; save the output of prop.test as an R object, apply the broom::tidy to this object and pull the estimated proportion and confidence intervals from the resulting tidy dataframe.
+
+Now run prop.test for each of the cities in your dataset, and extract both the proportion of unsolved homicides and the confidence interval for each. Do this within a “tidy” pipeline, making use of  purrr::map, purrr::map2, list columns and unnest as necessary to create a tidy dataframe with estimated proportions and CIs for each city.
+
+Create a plot that shows the estimates and CIs for each city – check out geom_errorbar for a way to add error bars based on the upper and lower limits. Organize cities according to the proportion of unsolved homicides.
+
 
 
 
