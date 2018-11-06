@@ -4,7 +4,6 @@ author: "Xinyao Wu"
 date: "2018/11/4"
 output: github_document
 ---
-#### library
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
 library(tidyverse)
@@ -12,6 +11,8 @@ library(purrr)
 ```
 
 ##Problem 1
+
+*tidy data
 ```{r tidy_data}
 #a dataframe containing all file names
 file_ls =tibble(
@@ -40,27 +41,39 @@ mutate(map(file_ls$path,read_data)) %>%
     week = as.factor(str_replace(week,"week_", " "))
   ) 
 ```
-
+*make a plot
 ```{r make_plots}
 file %>% 
 ggplot(aes(x = week, y = value, group= subject_Id,color = subject_Id))+
   geom_line()+
-  facet_grid(~group)
+  facet_grid(~group)+
+ 
+  labs(
+    y = "Observation value",
+    color = "Subject Id",
+    title = "Observation value change tendency from control and experimental subjects "
+  )
 
 ```
-#Comments:
 
-
-
+####Comments:
+The observation value change from control group are more static than the experimental group, the latter has an obvious increasing tendency over time.
 
 ##Problem2
 *read and clean data
-```{r Q1}
+```{r collapse=TRUE,warning=FALSE}
 wp_df = read.csv("https://raw.githubusercontent.com/washingtonpost/data-homicides/master/homicide-data.csv") %>% 
 janitor::clean_names() %>% 
   mutate(city_state = str_c(city,state,sep = ","))
+
+#date range 
+pull(wp_df,reported_date) %>%
+  as.character() %>% 
+  range()
+#victim age range
+pull(wp_df,victim_age) %>%as.character() %>% as.integer() %>% range(na.rm =TRUE)
 ```
-####Describe the raw data.
+####Describe the raw data:
 
 
 ```{r}
@@ -104,7 +117,7 @@ prop_df = homicide %>%
          )  %>% 
   unnest() %>% 
   select(city_state, estimate, conf.low, conf.high) 
-head(prop_df)
+prop_df
 ```
 ###comments
 
@@ -117,9 +130,10 @@ prop_df %>%
     axis.text.x = element_text(angle = 90,hjust = 1,size = 6.5)
   )+
   labs(
-    title = "The proportions of unsolved homicides in each city",
+    title = "The proportions of unsolved homicides in some US cities",
     y = "Proportion of unsolved homicides",
-    x = "City"
+    x = "City",
+    caption = "Data from Washington post"
   )
 ```
 
