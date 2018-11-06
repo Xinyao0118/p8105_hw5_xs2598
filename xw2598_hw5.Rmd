@@ -74,7 +74,7 @@ pull(wp_df,reported_date) %>%
 pull(wp_df,victim_age) %>%as.character() %>% as.integer() %>% range(na.rm =TRUE)
 ```
 ####Describe the raw data:
-
+This data contains `r nrow(wp_df)` homicides records included information such as reported date ranged from 20070101 to 20171231 and victim age ranged from 0 to 102 years old, and victim`s name,race,sex and the location details and disposition state of these homicides.
 
 ```{r}
 #calculated the total number of homicides and unsolved homicides
@@ -86,10 +86,13 @@ homicide = wp_df %>%
   summarise(
     total_homicides = n(),
     unsolved_homicides = sum(unsolved)
-  ) 
+  ) %>% 
+  arrange(desc(total_homicides))
 homicide
 ```
-####comments
+
+####Comments:
+The top 3 total homicides cities are : Chicago, Philadelphia, Houston, Baltimore, Detroit.
 
 
 ```{r  collapse = TRUE}
@@ -109,6 +112,9 @@ pull(balti,conf.low)
 pull(balti,conf.high)
 ```
 
+####Comments:
+The estimated proportion of homicides in Baltimore is 0.6455607 and its confidence interval is [ 0.6275625, 0.6631599]
+
 ```{r warning=FALSE}
 prop_df = homicide %>% 
   mutate(
@@ -117,9 +123,11 @@ prop_df = homicide %>%
          )  %>% 
   unnest() %>% 
   select(city_state, estimate, conf.low, conf.high) 
-prop_df
+prop_df %>% arrange(desc(estimate))
 ```
+
 ###comments
+The top 5 cities with the most unsolved homicides proportion are:Chicago, New Orleans,Baltimore, San Bernardino, Buffalo. The homicides proportion estimates range `r pull(prop_df,estimate) %>% range()`
 
 ```{r plot}
 prop_df %>% 
@@ -138,7 +146,7 @@ prop_df %>%
 ```
 
 ####Comments
-
+The homicides estimate proportion in Tulsa(AL) is an outlier compared to other cities. This unusual outcome is because Tulsa(Al) only had one record in homicide dataset, which caused the sample size too small to calculate a estimate value. Except this, other cities` estimate proportions and CIs seems to make sense and those who has wider confidence interbals would have more sample size compared to those who has narrower CI.
 
 
 
