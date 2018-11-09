@@ -40,7 +40,12 @@ mutate(map(file_ls$path,read_data)) %>%
   mutate(
     week = as.factor(str_replace(week,"week_", " "))
   ) 
+
+file 
 ```
+This dataset contains 4 variables: group, subject id, week and value. (1)group:control group or experimental group.(2)subject id: indicate different subjects.(3)week: indicate time, ranging from 1 to 8 (4)value: the observation outcome.
+
+
 *make a plot
 ```{r make_plots}
 file %>% 
@@ -57,7 +62,7 @@ ggplot(aes(x = week, y = value, group= subject_Id,color = subject_Id))+
 ```
 
 ####Comments:
-The observation value change from control group are more static than the experimental group, the latter has an obvious increasing tendency over time.
+The observation value change from control group are more static than the experimental group, the latter has an obvious increasing tendency over time. In the control group, the range of obervation value is stable in [-2,4].However, in the experimental group, the range of obervation value changed over time which was [-1.25,3.75] in the 1st week and then changed to [2.5,7.5] in the 8th week.  
 
 ##Problem2
 *read and clean data
@@ -88,7 +93,8 @@ homicide = wp_df %>%
     unsolved_homicides = sum(unsolved)
   ) %>% 
   arrange(desc(total_homicides))
-homicide
+homicide %>% 
+  knitr::kable()
 ```
 
 ####Comments:
