@@ -81,9 +81,24 @@ pull(wp_df,victim_age) %>%as.character() %>% as.integer() %>% range(na.rm =TRUE)
 ####Describe the raw data:
 This data contains `r nrow(wp_df)` homicides records included information such as reported date ranged from 20070101 to 20171231 and victim age ranged from 0 to 102 years old, and victim`s name,race,sex and the location details and disposition state of these homicides.
 
+A weird thing is that the number of city_state  is not equal to the number of cities. So I check the dataset and find the city "Tulsa" shows up in two states:
+```{r collapse=TRUE}
+#the number of city_state 
+nrow(distinct(wp_df,city_state))
+# the number of cities
+nrow(distinct(wp_df,city))
+#check the dataset and find the city "Tulsa" shows up in two states:
+ filter(wp_df,city == "Tulsa") %>% 
+   distinct(state)
+```
+Since Tulsa in the state of Oklahoma, the record of "Tulsa, AL" might be a typo. However, we are not sure whether the city name or the state name in this record is wrong. Since there is only one "Tulsa, AL", we choose to exclude this record.
+
+* homicide table
 ```{r}
 #calculated the total number of homicides and unsolved homicides
 homicide = wp_df %>% 
+  #exclude "Tulsa, AL"
+  filter(city_state != "Tulsa,AL") %>%
   group_by(city_state) %>% 
   mutate(
     unsolved = ifelse(disposition == "Closed by arrest",0,1)
@@ -97,10 +112,7 @@ homicide %>%
   knitr::kable()
 ```
 
-####Comments:
-The top 3 total homicides cities are : Chicago, Philadelphia, Houston, Baltimore, Detroit.
-
-
+*Baltimore analysis
 ```{r  collapse = TRUE}
  balti = homicide  %>% 
 #select the city of Baltimore,MD
@@ -119,7 +131,7 @@ pull(balti,conf.high)
 ```
 
 ####Comments:
-The estimated proportion of homicides in Baltimore is 0.6455607 and its confidence interval is [ 0.6275625, 0.6631599]
+The estimated proportion of homicides in Baltimore is 64.56% and its 95% confidence interval is [ 62.75%, 66.31%]
 
 ```{r warning=FALSE}
 prop_df = homicide %>% 
@@ -144,7 +156,7 @@ prop_df %>%
     axis.text.x = element_text(angle = 90,hjust = 1,size = 6.5)
   )+
   labs(
-    title = "The proportions of unsolved homicides in some US cities",
+    title = "The proportions of unsolved homicides in 50 US cities",
     y = "Proportion of unsolved homicides",
     x = "City",
     caption = "Data from Washington post"
@@ -152,7 +164,7 @@ prop_df %>%
 ```
 
 ####Comments
-The homicides estimate proportion in Tulsa(AL) is an outlier compared to other cities. This unusual outcome is because Tulsa(Al) only had one record in homicide dataset, which caused the sample size too small to calculate a estimate value. Except this, other cities` estimate proportions and CIs seems to make sense and those who has wider confidence interbals would have more sample size compared to those who has narrower CI.
+Cities who has a wider confidence interbals would have a bigger sample size compared to those who has a narrower CI. Seen from this plot, Chicago has the obvious highest proportion of unsolved homicides which is above 70%. Also, New Orieans and Baltimore has a high proportion of unsolved homicides with narrow CI, which means not only do they have high unsolved homicides proportion but also have a large total homicides number. To combine those above, the three cities seem dangerous according to the homocides analysis.
 
 
 
